@@ -34,7 +34,7 @@ function init (server, { middlewares, helpers } = {}) {
     manualAuth: true
   }, restifyAuthorizationParser, wrapAction(async (req, res) => {
     const { publicPlatformId } = req.params
-    const stripeconnectSignature = req.headers['stripeconnect-signature']
+    const stripeconnectSignature = req.headers['stripe-signature']
 
     return stripeconnect.webhook({
       _requestId: req._requestId,
