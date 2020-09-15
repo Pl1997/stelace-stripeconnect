@@ -1,5 +1,5 @@
-const Stripe = require('stripe')
-const debug = require('debug')('stelace:integrations:stripe')
+const Stripeconnect = require('stripe')
+const debug = require('debug')('stelace:integrations:stripeconnect')
 const _ = require('lodash')
 const { parsePublicPlatformId } = require('stelace-util-keys')
 
@@ -24,26 +24,26 @@ module.exports = function createService (deps) {
       access: 'private'
     })
 
-    const { secretApiKey } = _.get(privateConfig, 'stelace.integrations.stripe', {})
-    if (!secretApiKey) throw createError(403, 'Stripe secret API key not configured')
+    const { secretApiKey } = _.get(privateConfig, 'stelace.integrations.stripeconnect', {})
+    if (!secretApiKey) throw createError(403, 'Stripeconnect secret API key not configured')
 
-    const stripe = Stripe(secretApiKey)
+    const stripeconnect = Stripeconnect(secretApiKey)
 
-    if (typeof _.get(stripe, method) !== 'function') {
-      throw createError(400, 'Stripe method not found', { public: { method } })
+    if (typeof _.get(stripeconnect, method) !== 'function') {
+      throw createError(400, 'Stripeconnect method not found', { public: { method } })
     }
 
     try {
       // awaiting to handle error in catch block
-      return await _.invoke(stripe, method, ...args) // promise
+      return await _.invoke(stripeconnect, method, ...args) // promise
     } catch (err) {
-      const errorMessage = 'Stripe error'
+      const errorMessage = 'Stripeconnect error'
       const errObject = { expose: true }
 
       const reveal = !(process.env.NODE_ENV === 'production' && env === 'live')
       const errDetails = {
-        stripeMethod: method,
-        stripeError: err
+        stripeconnectMethod: method,
+        stripeconnectError: err
       }
       if (reveal) _.set(errObject, 'public', errDetails)
 
@@ -51,8 +51,8 @@ module.exports = function createService (deps) {
     }
   }
 
-  async function webhook ({ _requestId, stripeSignature, rawBody, publicPlatformId }) {
-    debug('Stripe integration: webhook event %O', rawBody)
+  async function webhook ({ _requestId, stripeconnectSignature, rawBody, publicPlatformId }) {
+    debug('Stripeconnect integration: webhook event %O', rawBody)
 
     const { hasValidFormat, platformId, env } = parsePublicPlatformId(publicPlatformId)
     if (!hasValidFormat) throw createError(403)
@@ -70,24 +70,24 @@ module.exports = function createService (deps) {
       access: 'private'
     })
 
-    const { secretApiKey, webhookSecret } = _.get(privateConfig, 'stelace.integrations.stripe', {})
-    if (!secretApiKey) throw createError(403, 'Stripe API key not configured')
-    if (!webhookSecret) throw createError(403, 'Stripe Webhook secret not configured')
+    const { secretApiKey, webhookSecret } = _.get(privateConfig, 'stelace.integrations.stripeconnect', {})
+    if (!secretApiKey) throw createError(403, 'Stripeconnect API key not configured')
+    if (!webhookSecret) throw createError(403, 'Stripeconnect Webhook secret not configured')
 
-    const stripe = Stripe(secretApiKey)
+    const stripeconnect = Stripeconnect(secretApiKey)
 
     let event
 
-    // Verify Stripe webhook signature
-    // https://stripe.com/docs/webhooks/signatures
+    // Verify Stripeconnect webhook signature
+    // https://stripeconnect.com/docs/webhooks/signatures
     try {
-      event = stripe.webhooks.constructEvent(rawBody, stripeSignature, webhookSecret)
+      event = stripeconnect.webhooks.constructEvent(rawBody, stripeconnectSignature, webhookSecret)
     } catch (err) {
       throw createError(403)
     }
 
     // prefix prevents overlapping with other event types
-    const type = `stripe_${event.type}`
+    const type = `stripeconnect_${event.type}`
     const params = {
       type,
       orderBy: 'createdDate',
@@ -105,10 +105,10 @@ module.exports = function createService (deps) {
       }
     })
 
-    // Stripe webhooks may send same events multiple times
-    // https://stripe.com/docs/webhooks/best-practices#duplicate-events
+    // Stripeconnect webhooks may send same events multiple times
+    // https://stripeconnect.com/docs/webhooks/best-practices#duplicate-events
     if (sameEvents.length) {
-      debug('Stripe integration: idempotency check with event id: %O', sameEvents)
+      debug('Stripeconnect integration: idempotency check with event id: %O', sameEvents)
     }
 
     await stelaceApiRequest('/events', {
@@ -116,11 +116,11 @@ module.exports = function createService (deps) {
       env,
       method: 'POST',
       payload: {
-        // https://stripe.com/docs/api/events/types
-        // No Stripe event name currently has two underscores '__', which would cause an error
+        // https://stripeconnect.com/docs/api/events/types
+        // No Stripeconnect event name currently has two underscores '__', which would cause an error
         type,
         objectId: event.id, // just a convention to easily retrieve events, objectId being indexed
-        emitterId: 'stripe',
+        emitterId: 'stripeconnect',
         metadata: event
       }
     })

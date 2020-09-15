@@ -1,6 +1,6 @@
-const createService = require('../services/stripe')
+const createService = require('../services/stripeconnect')
 
-let stripe
+let stripeconnect
 let deps = {}
 
 function init (server, { middlewares, helpers } = {}) {
@@ -14,10 +14,10 @@ function init (server, { middlewares, helpers } = {}) {
   } = helpers
 
   server.post({
-    name: 'stripe.pluginRequest',
-    path: '/integrations/stripe/request'
+    name: 'stripeconnect.pluginRequest',
+    path: '/integrations/stripeconnect/request'
   }, checkPermissions([
-    'integrations:read_write:stripe',
+    'integrations:read_write:stripeconnect',
     'integrations:read_write:all' // does not currently exist
   ]), wrapAction(async (req, res) => {
     let ctx = getRequestContext(req)
@@ -25,21 +25,21 @@ function init (server, { middlewares, helpers } = {}) {
     const { args, method } = req.body
     ctx = Object.assign({}, ctx, { args, method })
 
-    return stripe.sendRequest(ctx)
+    return stripeconnect.sendRequest(ctx)
   }))
 
   server.post({
-    name: 'stripe.webhooks',
-    path: '/integrations/stripe/webhooks/:publicPlatformId',
+    name: 'stripeconnect.webhooks',
+    path: '/integrations/stripeconnect/webhooks/:publicPlatformId',
     manualAuth: true
   }, restifyAuthorizationParser, wrapAction(async (req, res) => {
     const { publicPlatformId } = req.params
-    const stripeSignature = req.headers['stripe-signature']
+    const stripeconnectSignature = req.headers['stripeconnect-signature']
 
-    return stripe.webhook({
+    return stripeconnect.webhook({
       _requestId: req._requestId,
       publicPlatformId,
-      stripeSignature,
+      stripeconnectSignature,
       rawBody: req.rawBody,
       deps
     })
@@ -54,7 +54,7 @@ function start (startParams) {
   } = deps
 
   const configRequester = getRequester({
-    name: 'Stripe service > Config Requester',
+    name: 'Stripeconnect service > Config Requester',
     key: 'config'
   })
 
@@ -62,7 +62,7 @@ function start (startParams) {
     configRequester,
   })
 
-  stripe = createService(deps)
+  stripeconnect = createService(deps)
 }
 
 function stop () {

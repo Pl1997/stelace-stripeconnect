@@ -1,4 +1,4 @@
-# Stelace plugin: Stripe wrapper
+# Stelace plugin: Stripeconnect wrapper
 
 [Stripe-node](
   https://github.com/stripe/stripe-node
@@ -6,7 +6,7 @@
   https://stelace.com/docs/command/workflows
 ).
 
-[![CircleCI](https://circleci.com/gh/stelace/stelace-stripe.svg?style=svg)](https://circleci.com/gh/stelace/stelace-stripe)
+[![CircleCI](https://circleci.com/gh/stelace/stelace-stripeconnect.svg?style=svg)](https://circleci.com/gh/stelace/stelace-stripeconnect)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-yellow.svg)](https://standardjs.com)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -20,17 +20,17 @@ With [Stelace JavaScript SDK](https://github.com/stelace/stelace.js):
 const { createInstance } = require('stelace')
 
 // Please ensure the code is run in a secure environment
-// The API key must include the permission 'integrations:read_write:stripe'
+// The API key must include the permission 'integrations:read_write:stripeconnect'
 const stelace = createInstance({ apiKey: 'seck_...' })
 
-const customers = await stelace.forward.post('/integrations/stripe/request', {
-  // It will invoke the method `stripe.customers.list` from Stripe Node.js SDK
-  // https://github.com/stripe/stripe-node
+const customers = await stelace.forward.post('/integrations/stripeconnect/request', {
+  // It will invoke the method `stripeconnect.customers.list` from Stripeconnect Node.js SDK
+  // https://github.com/stripeconnect/stripeconnect-node
   // method invoked without parameters
   method: 'customers.list'
 })
 
-const customer = await stelace.forward.post('/integrations/stripe/request', {
+const customer = await stelace.forward.post('/integrations/stripeconnect/request', {
   method: 'customers.create',
 
   // one parameter
@@ -39,7 +39,7 @@ const customer = await stelace.forward.post('/integrations/stripe/request', {
   }
 })
 
-const updatedCustomer = await stelace.forward.post('/integrations/stripe/request', {
+const updatedCustomer = await stelace.forward.post('/integrations/stripeconnect/request', {
   method: 'customers.update',
 
   // multiple parameters
@@ -51,7 +51,7 @@ const updatedCustomer = await stelace.forward.post('/integrations/stripe/request
   ]
 })
 
-const deletedCustomer = await stelace.forward.post('/integrations/stripe/request', {
+const deletedCustomer = await stelace.forward.post('/integrations/stripeconnect/request', {
   method: 'customers.del',
 
   // one parameter
@@ -67,7 +67,7 @@ const axios = require('axios')
 const encodeBase64 = str => Buffer.from(str).toString('base64')
 
 // Please ensure the code is run in a secure environment
-// The API key must include the permission 'integrations:read_write:stripe'
+// The API key must include the permission 'integrations:read_write:stripeconnect'
 const secretApiKey = 'seck_...'
 
 const authorizationHeaders = {
@@ -75,17 +75,17 @@ const authorizationHeaders = {
 }
 
 const { data: customers } = await axios.post(
-  'https://api.stelace.com/integrations/stripe/request',
+  'https://api.stelace.com/integrations/stripeconnect/request',
 
-  // It will invoke the method `stripe.customers.list` from Stripe Node.js SDK
-  // https://github.com/stripe/stripe-node
+  // It will invoke the method `stripeconnect.customers.list` from Stripeconnect Node.js SDK
+  // https://github.com/stripeconnect/stripeconnect-node
   // method invoked without parameters
   { method: 'customers.list' },
   { headers: authorizationHeaders }
 )
 
 const { data: customer } = await axios.post(
-  'https://api.stelace.com/integrations/stripe/request',
+  'https://api.stelace.com/integrations/stripeconnect/request',
   {
     method: 'customers.create',
 
@@ -98,7 +98,7 @@ const { data: customer } = await axios.post(
 )
 
 const { data: updatedCustomer } = await axios.post(
-  'https://api.stelace.com/integrations/stripe/request',
+  'https://api.stelace.com/integrations/stripeconnect/request',
   {
     method: 'customers.update',
 
@@ -114,7 +114,7 @@ const { data: updatedCustomer } = await axios.post(
 )
 
 const { data: deletedCustomer } = await axios.post(
-  'https://api.stelace.com/integrations/stripe/request',
+  'https://api.stelace.com/integrations/stripeconnect/request',
   {
     method: 'customers.del',
 
@@ -127,7 +127,7 @@ const { data: deletedCustomer } = await axios.post(
 
 ## Configuration
 
-The Stripe plugin works if the following private configuration values are provided:
+The Stripeconnect plugin works if the following private configuration values are provided:
 
 With Stelace SDK:
 
@@ -135,11 +135,11 @@ With Stelace SDK:
 await stelace.config.updatePrivate({
   stelace: {
     integrations: {
-      stripe: {
-        secretApiKey, // Stripe secret API key
+      stripeconnect: {
+        secretApiKey, // Stripeconnect secret API key
 
-        // Stripe webhook secret,
-        // optional but recommended if you want to have access to Stripe events within Stelace
+        // Stripeconnect webhook secret,
+        // optional but recommended if you want to have access to Stripeconnect events within Stelace
         webhookSecret
       }
     }
@@ -161,7 +161,7 @@ await axios.patch(
 
 ## Tests and development
 
-A Stripe secret API key must be provided in the .env file, or in CI environment.
+A Stripeconnect secret API key must be provided in the .env file, or in CI environment.
 
 ```sh
 STRIPE_SECRET_API_KEY=...

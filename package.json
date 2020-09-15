@@ -1,7 +1,7 @@
 {
-  "name": "stelace-stripe",
+  "name": "stelace-stripeconnect",
   "version": "0.1.0",
-  "description": "Stelace server wrapper plugin for Stripe",
+  "description": "Stelace server wrapper plugin for Stripeconnect",
   "license": "GPL-3.0",
   "private": true,
   "main": "index.js",

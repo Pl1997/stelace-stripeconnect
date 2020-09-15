@@ -1,5 +1,5 @@
 const validationVersions = [
-  require('./stripe')
+  require('./stripeconnect')
 ]
 
 module.exports = validationVersions
